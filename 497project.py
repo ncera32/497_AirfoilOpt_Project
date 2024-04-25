@@ -12,6 +12,7 @@ from cmplxfoil import CMPLXFOIL, AnimateAirfoilOpt
 # Specifying Parameters for Optimization
 
 mycl = 0.5 #CL constraint
+mycm = -0.02 #CM constraint (moment)
 alpha = 0.0 if mycl == 0.0 else 1.0 #Initial AoA (zero if CL is zero)
 mach = 0.1 #Mach number
 Re = 1e6 #Reynolds number
