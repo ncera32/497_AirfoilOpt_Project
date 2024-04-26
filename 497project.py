@@ -12,6 +12,7 @@ from cmplxfoil import CMPLXFOIL, AnimateAirfoilOpt
 # Specifying Parameters for Optimization
 
 mycl = 0.5 #CL constraint
+mycm = 0.03 #CM constraint
 alpha = 0.0 if mycl == 0.0 else 1.0 #Initial AoA (zero if CL is zero)
 mach = 0.1 #Mach number
 Re = 1e6 #Reynolds number
@@ -56,7 +57,7 @@ ap = AeroProblem(
     T=T,
     areaRef=1.0,
     chordRef=1.0,
-    evalFuncs=["cl", "cd"],
+    evalFuncs=["cl", "cd", "cm"],
 )
 # Add angle of attack variable
 if mycl != 0.0:
@@ -120,7 +121,7 @@ def cruiseFuncsSens(x, funcs):
     CFDSolver.evalFunctionsSens(ap, funcsSens)
     CFDSolver.checkAdjointFailure(ap, funcsSens)
     print("function sensitivities:")
-    evalFunc = ["fc_cd", "fc_cl", "fail"]
+    evalFunc = ["fc_cd", "fc_cl", "fc_cm", "fail"]
     for var in evalFunc:
         print(f"    {var}: {funcsSens[var]}")
     return funcsSens
@@ -130,6 +131,7 @@ def objCon(funcs, printOK):
     # Assemble the objective and any additional constraints:
     funcs["obj"] = funcs[ap["cd"]]
     funcs["cl_con_" + ap.name] = funcs[ap["cl"]] - mycl
+    funcs["cm_con_" + ap.name] = funcs[ap["cm"]] - mycl
     if printOK:
         print("funcs in obj:", funcs)
     return funcs
@@ -153,6 +155,9 @@ DVCon.addConstraintsPyOpt(optProb)
 
 # Add cl constraint
 optProb.addCon("cl_con_" + ap.name, lower=0.0, upper=0.0, scale=1.0)
+
+# Add cm constraint
+optProb.addCon("cm_con_" + ap.name, lower=0.0, upper=0.0, scale=1.0)
 
 # Enforce first upper and lower CST coefficients to add to zero
 # to maintain continuity at the leading edge
@@ -192,8 +197,8 @@ CFDSolver.airfoilAxs[1].legend(["Original", "Optimized"], labelcolor="linecolor"
 CFDSolver.airfoilFig.savefig(os.path.join(outputDir, "OptFoil.pdf"))
 
 # Animate the optimization
-AnimateAirfoilOpt(outputDir, "fc").animate(
-    outputFileName=os.path.join(outputDir, "OptFoil"), fps=10, dpi=300, extra_args=["-vcodec", "libx264"]
-)
+#AnimateAirfoilOpt(outputDir, "fc").animate(
+#    outputFileName=os.path.join(outputDir, "OptFoil"), fps=10, dpi=300, extra_args=["-vcodec", "libx264"]
+#)
 
 
