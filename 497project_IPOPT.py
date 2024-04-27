@@ -10,14 +10,6 @@ from pyoptsparse import Optimization, OPT
 from multipoint import multiPointSparse
 from cmplxfoil import CMPLXFOIL, AnimateAirfoilOpt
 
-#import matplotlib as mpl
-
-#mpl.rcParams['lines.linewidth'] = 2
-#mpl.rc('xtick', labelsize=24) 
-#mpl.rc('ytick', labelsize=24) 
-#mpl.rc('axes', labelsize=24) 
-#mpl.rc('font', size=24)
-
 # Specifying Parameters for Optimization
 
 mycl = 0.5 #CL constraint
@@ -35,14 +27,11 @@ MP.createCommunicators()
 
 # Creating Output Directory
 
-#CHECK
 curDir = os.path.abspath(os.path.dirname(__file__))
 outputDir = os.path.join(curDir, "output_IPOPT")
 
 if not os.path.exists(outputDir):
     os.mkdir(outputDir)
-
-# can do outputDir = "/Users/nickcera/Desktop/Aersp497-DesOpt/Project" ???
     
 # CMPLXOIL solver setup
     
@@ -135,21 +124,11 @@ def cruiseFuncsSens(x, funcs):
         print(f"    {var}: {funcsSens[var]}")
     return funcsSens
 
-
-# TRYING TO COLLECT METRIC HISTORY IN ARRAYS
-#obj_vals_SLSQP = []
-#cl_con_vals_SLSQP = []
-#cm_con_vals_SLSQP = []
-
 def objCon(funcs, printOK):
     # Assemble the objective and any additional constraints:
     funcs["obj"] = funcs[ap["cd"]]
     funcs["cl_con_" + ap.name] = funcs[ap["cl"]] - mycl
     funcs["cm_con_" + ap.name] = funcs[ap["cm"]] - mycm
-
-    #obj_vals_SLSQP.append(funcs["obj"])
-    #cl_con_vals_SLSQP.append(funcs["cl_con_" + ap.name])
-    #cm_con_vals_SLSQP.append(funcs["cm_con_" + ap.name])
 
     if printOK:
         print("funcs in obj:", funcs)
@@ -207,7 +186,7 @@ optOptions = { "print_level": [int, 0],
                 "file_print_level": [int, 5],
                 "sb": [str, "yes"],
                 "print_user_options": [str, "yes"],
-                "output_file": os.path.join(outputDir, "SLSQP.out"),
+                "output_file": os.path.join(outputDir, "IPOPT.out"),
                 "linear_solver": [str, "mumps"],
              }
 opt = OPT("IPOPT", options=optOptions)
