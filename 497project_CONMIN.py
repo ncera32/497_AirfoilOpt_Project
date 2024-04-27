@@ -1,6 +1,5 @@
 # Import Libraries
 
-#import matplotlib.pyplot as plt
 import os
 import numpy as np
 from mpi4py import MPI
@@ -9,14 +8,6 @@ from pygeo import DVConstraints, DVGeometryCST
 from pyoptsparse import Optimization, OPT
 from multipoint import multiPointSparse
 from cmplxfoil import CMPLXFOIL, AnimateAirfoilOpt
-
-#import matplotlib as mpl
-
-#mpl.rcParams['lines.linewidth'] = 2
-#mpl.rc('xtick', labelsize=24) 
-#mpl.rc('ytick', labelsize=24) 
-#mpl.rc('axes', labelsize=24) 
-#mpl.rc('font', size=24)
 
 # Specifying Parameters for Optimization
 
@@ -35,14 +26,11 @@ MP.createCommunicators()
 
 # Creating Output Directory
 
-#CHECK
 curDir = os.path.abspath(os.path.dirname(__file__))
 outputDir = os.path.join(curDir, "output_CONMIN")
 
 if not os.path.exists(outputDir):
     os.mkdir(outputDir)
-
-# can do outputDir = "/Users/nickcera/Desktop/Aersp497-DesOpt/Project" ???
     
 # CMPLXOIL solver setup
     
@@ -135,21 +123,11 @@ def cruiseFuncsSens(x, funcs):
         print(f"    {var}: {funcsSens[var]}")
     return funcsSens
 
-
-# TRYING TO COLLECT METRIC HISTORY IN ARRAYS
-#obj_vals_SLSQP = []
-#cl_con_vals_SLSQP = []
-#cm_con_vals_SLSQP = []
-
 def objCon(funcs, printOK):
     # Assemble the objective and any additional constraints:
     funcs["obj"] = funcs[ap["cd"]]
     funcs["cl_con_" + ap.name] = funcs[ap["cl"]] - mycl
     funcs["cm_con_" + ap.name] = funcs[ap["cm"]] - mycm
-
-    #obj_vals_SLSQP.append(funcs["obj"])
-    #cl_con_vals_SLSQP.append(funcs["cl_con_" + ap.name])
-    #cm_con_vals_SLSQP.append(funcs["cm_con_" + ap.name])
 
     if printOK:
         print("funcs in obj:", funcs)
@@ -214,36 +192,3 @@ if MPI.COMM_WORLD.rank == 0:
 # Save the final figure
 CFDSolver.airfoilAxs[1].legend(["Original", "Optimized"], labelcolor="linecolor")
 CFDSolver.airfoilFig.savefig(os.path.join(outputDir, "OptFoil_CONMIN.pdf"))
-
-
-# Animate the optimization
-#AnimateAirfoilOpt(outputDir, "fc").animate(
-#    outputFileName=os.path.join(outputDir, "OptFoil"), fps=10, dpi=300
-#)
-
-#removed extra_args=["-vcodec", "libx264"] from above
-
-# Plotting
-
-# removed subplots (using separate figures) and try adding other algorithm information
-
-#fig1 = plt.figure(figsize = (12,12))
-#iterations_slsqp = np.arange(len(obj_vals_SLSQP))
-#plt.plot(iterations_slsqp, obj_vals_SLSQP, marker='.', lw=2, color='r')
-#plt.xlabel('iterations')
-#plt.ylabel('Cd value')
-#plt.show()
-
-#iterations_slsqp = np.arange(len(cl_con_vals_SLSQP))
-#fig2 = plt.figure(figsize = (12,12))
-#plt.plot(iterations_slsqp, cl_con_vals_SLSQP, marker='.', lw=2, color='r')
-#plt.xlabel('iterations')
-#plt.ylabel('CL constraint violation')
-#plt.show()
-
-#iterations_slsqp = np.arange(len(cm_con_vals_SLSQP))
-#fig3 = plt.figure(figsize = (12,12))
-#plt.plot(iterations_slsqp, cm_con_vals_SLSQP, marker='.', lw=2, color='r')
-#plt.xlabel('iterations')
-#plt.ylabel('CM constraint violation')
-#plt.show()
