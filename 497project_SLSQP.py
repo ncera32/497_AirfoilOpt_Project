@@ -26,14 +26,11 @@ MP.createCommunicators()
 
 # Creating Output Directory
 
-#CHECK
 curDir = os.path.abspath(os.path.dirname(__file__))
 outputDir = os.path.join(curDir, "output")
 
 if not os.path.exists(outputDir):
     os.mkdir(outputDir)
-
-# can do outputDir = "/Users/nickcera/Desktop/Aersp497-DesOpt/Project" ???
     
 # CMPLXOIL solver setup
     
@@ -195,10 +192,3 @@ if MPI.COMM_WORLD.rank == 0:
 # Save the final figure
 CFDSolver.airfoilAxs[1].legend(["Original", "Optimized"], labelcolor="linecolor")
 CFDSolver.airfoilFig.savefig(os.path.join(outputDir, "OptFoil.pdf"))
-
-# Animate the optimization
-#AnimateAirfoilOpt(outputDir, "fc").animate(
-#    outputFileName=os.path.join(outputDir, "OptFoil"), fps=10, dpi=300, extra_args=["-vcodec", "libx264"]
-#)
-
-
