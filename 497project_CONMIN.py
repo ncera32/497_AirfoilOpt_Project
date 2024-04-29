@@ -123,11 +123,23 @@ def cruiseFuncsSens(x, funcs):
         print(f"    {var}: {funcsSens[var]}")
     return funcsSens
 
+
+#COLLECT METRIC HISTORY IN ARRAYS
+obj_vals_CONMIN = []
+cl_con_vals_CONMIN = []
+cm_con_vals_CONMIN = []
+fc_cd_vals_CONMIN = []
+
 def objCon(funcs, printOK):
     # Assemble the objective and any additional constraints:
     funcs["obj"] = funcs[ap["cd"]]
     funcs["cl_con_" + ap.name] = funcs[ap["cl"]] - mycl
     funcs["cm_con_" + ap.name] = funcs[ap["cm"]] - mycm
+
+    obj_vals_CONMIN.append(funcs["obj"])
+    cl_con_vals_CONMIN.append(funcs["cl_con_" + ap.name])
+    cm_con_vals_CONMIN.append(funcs["cm_con_" + ap.name])
+    fc_cd_vals_CONMIN.append(funcs["fc_cd"])
 
     if printOK:
         print("funcs in obj:", funcs)
@@ -192,3 +204,17 @@ if MPI.COMM_WORLD.rank == 0:
 # Save the final figure
 CFDSolver.airfoilAxs[1].legend(["Original", "Optimized"], labelcolor="linecolor")
 CFDSolver.airfoilFig.savefig(os.path.join(outputDir, "OptFoil_CONMIN.pdf"))
+
+if os.path.exists("optimization_results.npz"):
+    np.savez("optimization_results.npz",
+             obj_vals_CONMIN=obj_vals_CONMIN,
+             cl_con_vals_CONMIN=cl_con_vals_CONMIN,
+             cm_con_vals_CONMIN=cm_con_vals_CONMIN,
+             fc_cd_vals_CONMIN=fc_cd_vals_CONMIN,
+             **np.load("optimization_results.npz"))
+else:
+    np.savez("optimization_results.npz",
+             obj_vals_CONMIN=obj_vals_CONMIN,
+             cl_con_vals_CONMIN=cl_con_vals_CONMIN,
+             cm_con_vals_CONMIN=cm_con_vals_CONMIN,
+             fc_cd_vals_CONMIN=fc_cd_vals_CONMIN)
