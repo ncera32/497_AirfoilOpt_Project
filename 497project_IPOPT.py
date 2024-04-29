@@ -1,6 +1,5 @@
 # Import Libraries
 
-#import matplotlib.pyplot as plt
 import os
 import numpy as np
 from mpi4py import MPI
@@ -124,11 +123,23 @@ def cruiseFuncsSens(x, funcs):
         print(f"    {var}: {funcsSens[var]}")
     return funcsSens
 
+
+#COLLECT METRIC HISTORY IN ARRAYS
+obj_vals_IPOPT = []
+cl_con_vals_IPOPT = []
+cm_con_vals_IPOPT = []
+fc_cd_vals_IPOPT = []
+
 def objCon(funcs, printOK):
     # Assemble the objective and any additional constraints:
     funcs["obj"] = funcs[ap["cd"]]
     funcs["cl_con_" + ap.name] = funcs[ap["cl"]] - mycl
     funcs["cm_con_" + ap.name] = funcs[ap["cm"]] - mycm
+
+    obj_vals_IPOPT.append(funcs["obj"])
+    cl_con_vals_IPOPT.append(funcs["cl_con_" + ap.name])
+    cm_con_vals_IPOPT.append(funcs["cm_con_" + ap.name])
+    fc_cd_vals_IPOPT.append(funcs["fc_cd"])
 
     if printOK:
         print("funcs in obj:", funcs)
@@ -188,6 +199,8 @@ optOptions = { "print_level": [int, 0],
                 "print_user_options": [str, "yes"],
                 "output_file": os.path.join(outputDir, "IPOPT.out"),
                 "linear_solver": [str, "mumps"],
+                "tol": [float, 1e-6],  # Termination tolerance
+                "max_iter": [int, 350],
              }
 opt = OPT("IPOPT", options=optOptions)
 sol = opt(optProb, MP.sens, storeHistory=os.path.join(outputDir, "opt_IPOPT.hst"))
@@ -199,3 +212,17 @@ if MPI.COMM_WORLD.rank == 0:
 # Save the final figure
 CFDSolver.airfoilAxs[1].legend(["Original", "Optimized"], labelcolor="linecolor")
 CFDSolver.airfoilFig.savefig(os.path.join(outputDir, "OptFoil_IPOPT.pdf"))
+
+if os.path.exists("optimization_results.npz"):
+    np.savez("optimization_results.npz",
+             obj_vals_IPOPT=obj_vals_IPOPT,
+             cl_con_vals_IPOPT=cl_con_vals_IPOPT,
+             cm_con_vals_IPOPT=cm_con_vals_IPOPT,
+             fc_cd_vals_IPOPT=fc_cd_vals_IPOPT,
+             **np.load("optimization_results.npz"))
+else:
+    np.savez("optimization_results.npz",
+             obj_vals_IPOPT=obj_vals_IPOPT,
+             cl_con_vals_IPOPT=cl_con_vals_IPOPT,
+             cm_con_vals_IPOPT=cm_con_vals_IPOPT,
+             fc_cd_vals_IPOPT=fc_cd_vals_IPOPT)
