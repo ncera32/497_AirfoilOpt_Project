@@ -23,7 +23,7 @@ final airfoil shape, pressure coefficient, and local skin friction coefficient c
 objective function values across the optimization. Within the PDF file, the colored lines represent the optimized results, and the grey lines represent the
 initial conditions. A numpy file will store the data tracking the metrics (objective value and constraint violations) at the end of each script. This file will be saved within the terminal repository the scripts were ran in. Lastly, run the post processing script ('PostProcessing.py), which will access the numpy file containing the comparison metrics for the optimization of each algorithm, and plot the results. Make sure to enable graphing capabilities through XQuartz at the beginning of the terminal shell. This can be done using the -X command, or export DISPLAY=localhost:10.0 command. The post processing script will output three figures, a plot of the objective values across each iteration for each algorithm, a plot of the constraint violations for the first constraint across each iteration, and a plot of the constraint violations for the second constraint across each iteration. 
 
-Sidenote: The script implementing the IPOPT file has a long runtime. It can be terminated early using the control+c command. Additonally, the aerospace virtual machine contains all the necessary library installations, and can be leveraged to run each script. 
+Sidenote: The script implementing the IPOPT file has a long runtime. It can be terminated early using the control+c command when the the output appears close to being optimized. Additonally, the aerospace virtual machine contains all the necessary library installations, and can be leveraged to run each script. 
 
 Requirements:
 
